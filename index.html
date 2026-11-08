@@ -10,6 +10,7 @@
 <link rel="icon" type="image/svg+xml" href="./icon.svg">
 <link rel="apple-touch-icon" href="./icon.svg">
 <title>MermaControl 3A</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
@@ -26,9 +27,7 @@
  --safe-top:env(safe-area-inset-top,0px);
  --safe-bottom:env(safe-area-inset-bottom,0px);
 }
-
 *{box-sizing:border-box}
-
 html{
  width:100%;
  min-height:100%;
@@ -36,7 +35,6 @@ html{
  -webkit-text-size-adjust:100%;
  scroll-behavior:smooth;
 }
-
 body{
  margin:0;
  width:100%;
@@ -48,13 +46,11 @@ body{
  color:#172334;
  font-family:Arial,sans-serif;
 }
-
 header{
  background:linear-gradient(120deg,var(--navy),var(--blue));
  color:white;
  padding:calc(20px + var(--safe-top)) 15px 20px;
 }
-
 .head{
  max-width:1100px;
  margin:auto;
@@ -63,11 +59,8 @@ header{
  align-items:center;
  gap:10px;
 }
-
 h1{font-size:22px;margin:0 0 5px}
-
 .sub{font-size:13px;opacity:.85;line-height:1.4}
-
 .status{
  font-size:12px;
  background:#ffffff20;
@@ -76,13 +69,11 @@ h1{font-size:22px;margin:0 0 5px}
  padding:7px;
  white-space:nowrap;
 }
-
 main{
  max-width:1100px;
  margin:16px auto;
  padding:0 12px calc(40px + var(--safe-bottom));
 }
-
 .tabs{
  display:flex;
  gap:7px;
@@ -92,7 +83,6 @@ main{
  -webkit-overflow-scrolling:touch;
  scrollbar-width:thin;
 }
-
 .tab{
  flex:0 0 auto;
  border:1px solid var(--line);
@@ -104,23 +94,19 @@ main{
  white-space:nowrap;
  touch-action:manipulation;
 }
-
 .tab.active{
  background:var(--orange);
  border-color:var(--orange);
  color:#241708;
 }
-
 .panel{display:none}
 .panel.active{display:block}
-
 .cards{
  display:grid;
  grid-template-columns:repeat(4,minmax(0,1fr));
  gap:10px;
  margin-bottom:14px;
 }
-
 .card,.box{
  min-width:0;
  background:white;
@@ -129,38 +115,32 @@ main{
  padding:14px;
  box-shadow:0 2px 8px #14243a08;
 }
-
 .metric{
  font-size:26px;
  font-weight:800;
  color:var(--navy);
  margin-top:7px;
 }
-
 .metric-label,.muted{
  font-size:12px;
  color:var(--muted);
 }
-
 .section-title{
  font-size:18px;
  color:var(--navy);
  margin:6px 0 12px;
 }
-
 .grid2{
  display:grid;
  grid-template-columns:1fr 1fr;
  gap:12px;
 }
-
 label{
  display:block;
  font-size:13px;
  font-weight:bold;
  margin:12px 0 6px;
 }
-
 input,select,textarea{
  width:100%;
  max-width:100%;
@@ -171,9 +151,7 @@ input,select,textarea{
  background:white;
  min-height:43px;
 }
-
 textarea{min-height:76px}
-
 button{
  border:0;
  border-radius:9px;
@@ -182,7 +160,6 @@ button{
  cursor:pointer;
  touch-action:manipulation;
 }
-
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
@@ -190,49 +167,41 @@ textarea:focus-visible{
  outline:3px solid #f28c2866;
  outline-offset:2px;
 }
-
 .primary{background:var(--orange);color:#241708}
 .secondary{background:var(--navy);color:white}
 .light{background:#edf2f7;color:var(--navy)}
 .danger{background:#fde8e8;color:#a51f1f}
-
 .actions{
  display:flex;
  gap:8px;
  flex-wrap:wrap;
  margin-top:14px;
 }
-
 .searchrow{
  display:flex;
  gap:8px;
  margin-bottom:10px;
  min-width:0;
 }
-
 .searchrow input{
  flex:1;
  min-width:0;
 }
-
 table{
  width:100%;
  border-collapse:collapse;
  font-size:13px;
  min-width:650px;
 }
-
 th,td{
  text-align:left;
  padding:11px 9px;
  border-bottom:1px solid var(--line);
 }
-
 th{
  background:#f6f8fb;
  color:var(--navy);
 }
-
 .tablewrap{
  width:100%;
  max-width:100%;
@@ -243,7 +212,6 @@ th{
  border-radius:12px;
  background:white;
 }
-
 .pill{
  display:inline-block;
  padding:5px 8px;
@@ -252,11 +220,9 @@ th{
  font-weight:bold;
  background:#edf2f7;
 }
-
 .pill.red{background:#fde8e8;color:#a51f1f}
 .pill.orange{background:#fff0dc;color:#8c4d00}
 .pill.green{background:#e4f5eb;color:#146c43}
-
 .notice{
  padding:12px;
  border-radius:10px;
@@ -266,13 +232,11 @@ th{
  color:#744400;
  overflow-wrap:anywhere;
 }
-
 .empty{
  padding:22px;
  text-align:center;
  color:var(--muted);
 }
-
 #toast{
  position:fixed;
  bottom:calc(18px + var(--safe-bottom));
@@ -289,7 +253,6 @@ th{
  overflow-wrap:anywhere;
  box-shadow:0 4px 18px #0003;
 }
-
 @media(max-width:700px){
  .cards{grid-template-columns:repeat(2,minmax(0,1fr))}
  .grid2{grid-template-columns:1fr}
@@ -306,7 +269,6 @@ th{
   padding-right:12px;
  }
 }
-
 @media(max-width:380px){
  h1{font-size:19px}
  .sub{font-size:12px}
@@ -319,7 +281,6 @@ th{
 </head>
 
 <body>
-
 <header>
  <div class="head">
   <div>
@@ -357,7 +318,6 @@ th{
     <div class="metric" id="mWaste">—</div>
    </div>
   </div>
-
   <div class="box">
    <h2 class="section-title">Alertas de vencimiento</h2>
    <div class="muted">Revisa los productos que vencen dentro de los próximos 6 días.</div>
@@ -376,12 +336,8 @@ th{
     <table>
      <thead>
       <tr>
-       <th>Producto</th>
-       <th>Stock</th>
-       <th>Vencimiento</th>
-       <th>Ubicación</th>
-       <th>Estado</th>
-       <th>Acción</th>
+       <th>Producto</th><th>Stock</th><th>Vencimiento</th>
+       <th>Ubicación</th><th>Estado</th><th>Acción</th>
       </tr>
      </thead>
      <tbody id="productsBody">
@@ -400,38 +356,25 @@ th{
     <form id="productForm">
      <label>Nombre del producto *</label>
      <input id="pName" required maxlength="120" placeholder="Ej. Leche evaporada">
-
      <label>Código de barras</label>
      <div class="searchrow">
       <input id="pBarcode" placeholder="Escanea o escribe el código">
       <button type="button" class="light" id="scanBtn">Escanear</button>
      </div>
-
      <label>Cantidad inicial *</label>
      <input id="pQty" type="number" min="0" step="0.01" required value="0">
-
      <label>Unidad</label>
      <select id="pUnit">
-      <option>unidad</option>
-      <option>paquete</option>
-      <option>caja</option>
-      <option>bolsa</option>
-      <option>botella</option>
-      <option>kg</option>
-      <option>g</option>
-      <option>litro</option>
-      <option>ml</option>
+      <option>unidad</option><option>paquete</option><option>caja</option>
+      <option>bolsa</option><option>botella</option><option>kg</option>
+      <option>g</option><option>litro</option><option>ml</option>
      </select>
-
      <label>Fecha de vencimiento</label>
      <input id="pExpiry" type="date">
-
      <label>Ubicación / zona</label>
      <input id="pLocation" placeholder="Ej. Góndola, almacén, refrigeradora">
-
      <label>Nombre del trabajador *</label>
      <input id="pWorker" required maxlength="80" placeholder="¿Quién registra?">
-
      <div class="actions">
       <button class="primary" type="submit">Guardar producto</button>
       <button class="light" type="reset">Limpiar</button>
@@ -446,23 +389,18 @@ th{
      <select id="mProduct" required>
       <option value="">Selecciona un producto</option>
      </select>
-
      <label>Tipo de movimiento *</label>
      <select id="mType">
       <option value="merma">Merma / retiro</option>
       <option value="ingreso">Ingreso de stock</option>
       <option value="ajuste">Ajuste de stock (resta)</option>
      </select>
-
      <label>Cantidad *</label>
      <input id="mQty" type="number" min="0.01" step="0.01" required placeholder="Ej. 2">
-
      <label>Nombre del trabajador *</label>
      <input id="mWorker" required maxlength="80" placeholder="¿Quién realiza el movimiento?">
-
      <label>Motivo / observación</label>
      <textarea id="mNotes" maxlength="500" placeholder="Ej. Producto vencido, envase dañado…"></textarea>
-
      <div class="actions">
       <button class="secondary" type="submit">Guardar movimiento</button>
      </div>
@@ -481,17 +419,12 @@ th{
     </div>
     <button class="primary" id="exportBtn">Exportar a Excel</button>
    </div>
-
    <div class="tablewrap">
     <table>
      <thead>
       <tr>
-       <th>Fecha y hora</th>
-       <th>Producto</th>
-       <th>Movimiento</th>
-       <th>Cantidad</th>
-       <th>Trabajador</th>
-       <th>Observación</th>
+       <th>Fecha y hora</th><th>Producto</th><th>Movimiento</th>
+       <th>Cantidad</th><th>Trabajador</th><th>Observación</th>
       </tr>
      </thead>
      <tbody id="historyBody">
@@ -507,18 +440,19 @@ th{
 
 <script>
 (() => {
+ // CONFIGURACIÓN DE SUPABASE
  const SUPABASE_URL = "https://rgadrcvqvqnktwrnimpk.supabase.co";
- const SUPABASE_KEY = "sb_publishable_eUosdY-2YDNGPw6AIxjhhQ_g_dSV8e";
+ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJnYWRyY3ZxdnFua3R3cm5pbXBrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MzQ5ODIsImV4cCI6MjEwODUxMDk4Mn0.wrNHhJirSIlUAXHkyKzvfXvL7o0JcdY4pjzTT1OwCA4";
 
  const $ = id => document.getElementById(id);
- const state = {products:[], movements:[], client:null};
+ const state = {products:[],movements:[],client:null};
 
  function toast(message){
   const el=$("toast");
   el.textContent=message;
   el.style.display="block";
   clearTimeout(toast.timer);
-  toast.timer=setTimeout(()=>el.style.display="none",3500);
+  toast.timer=setTimeout(()=>el.style.display="none",4500);
  }
 
  function esc(value){
@@ -577,8 +511,8 @@ th{
    state.client.from("merma_movements").select("*").order("created_at",{ascending:false}).limit(1000)
   ]);
 
-  if(products.error)throw products.error;
-  if(movements.error)throw movements.error;
+  if(products.error)throw new Error("Tabla merma_products: "+products.error.message);
+  if(movements.error)throw new Error("Tabla merma_movements: "+movements.error.message);
 
   state.products=products.data||[];
   state.movements=movements.data||[];
@@ -643,7 +577,6 @@ th{
   document.querySelectorAll("[data-edit]").forEach(b=>
    b.addEventListener("click",()=>editProduct(b.dataset.edit))
   );
-
   document.querySelectorAll("[data-delete]").forEach(b=>
    b.addEventListener("click",()=>deleteProduct(b.dataset.delete))
   );
@@ -651,13 +584,11 @@ th{
 
  function renderProductSelect(){
   const current=$("mProduct").value;
-
   $("mProduct").innerHTML='<option value="">Selecciona un producto</option>'+
    state.products.map(p=>
     `<option value="${p.id}">${esc(p.name)} · Stock: ${esc(stockText(p))}</option>`
    ).join("");
-
-  if(state.products.some(p=>p.id===current)){
+  if(state.products.some(p=>String(p.id)===current)){
    $("mProduct").value=current;
   }
  }
@@ -666,7 +597,6 @@ th{
   $("historyBody").innerHTML=state.movements.length?state.movements.map(m=>{
    const label=m.movement_type==="merma"?"Merma":
     m.movement_type==="ingreso"?"Ingreso":"Ajuste";
-
    return `<tr>
     <td>${dateTimeText(m.created_at)}</td>
     <td>${esc(m.product_name)}</td>
@@ -679,18 +609,15 @@ th{
  }
 
  async function editProduct(id){
-  const p=state.products.find(x=>x.id===id);
+  const p=state.products.find(x=>String(x.id)===String(id));
   if(!p)return;
 
   const name=prompt("Nombre del producto:",p.name);
   if(name===null)return;
-
   const qty=prompt("Stock actual:",p.quantity);
   if(qty===null)return;
-
   const location=prompt("Ubicación:",p.location||"");
   if(location===null)return;
-
   const expiry=prompt("Vencimiento (AAAA-MM-DD), vacío si no tiene:",p.expiry_date||"");
   if(expiry===null)return;
 
@@ -708,28 +635,24 @@ th{
   }).eq("id",id);
 
   if(error)return toast("No se pudo editar: "+error.message);
-
   toast("Producto actualizado.");
   await loadAll();
  }
 
  async function deleteProduct(id){
-  const p=state.products.find(x=>x.id===id);
+  const p=state.products.find(x=>String(x.id)===String(id));
   if(!p)return;
 
   const confirmation=confirm(
    "¿Estás seguro de eliminar "+p.name+"?\n\n"+
    "El producto desaparecerá del inventario, pero sus movimientos anteriores se conservarán en el historial."
   );
-
   if(!confirmation)return;
 
   const {error}=await state.client.from("merma_products").delete().eq("id",id);
-
   if(error)return toast("No se pudo eliminar: "+error.message);
 
   toast("Producto eliminado del inventario.");
-
   try{
    await loadAll();
   }catch(e){
@@ -770,12 +693,10 @@ th{
   };
 
   const {error}=await state.client.from("merma_products").insert(row);
-
   if(error)return toast("No se pudo guardar: "+error.message);
 
   $("productForm").reset();
   $("pQty").value="0";
-
   toast("Producto registrado correctamente.");
   await loadAll();
   switchTab("productos");
@@ -785,7 +706,7 @@ th{
   e.preventDefault();
 
   const id=$("mProduct").value;
-  const p=state.products.find(x=>x.id===id);
+  const p=state.products.find(x=>String(x.id)===String(id));
   const qty=Number($("mQty").value);
   const worker=$("mWorker").value.trim();
   const type=$("mType").value;
@@ -818,7 +739,6 @@ th{
    await state.client.from("merma_products")
     .update({quantity:oldQty,updated_at:new Date().toISOString()})
     .eq("id",id);
-
    return toast("No se guardó el movimiento: "+insertError.message);
   }
 
@@ -837,19 +757,16 @@ th{
    const detector=new BarcodeDetector({
     formats:["ean_13","ean_8","upc_a","upc_e","code_128","qr_code"]
    });
-
    const stream=await navigator.mediaDevices.getUserMedia({
     video:{facingMode:"environment"}
    });
-
    const video=document.createElement("video");
    video.srcObject=stream;
    video.setAttribute("playsinline","");
    await video.play();
 
    const overlay=document.createElement("div");
-   overlay.style.cssText=
-    "position:fixed;inset:0;background:#000e;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px";
+   overlay.style.cssText="position:fixed;inset:0;background:#000e;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px";
 
    const close=document.createElement("button");
    close.textContent="Cerrar escáner";
@@ -858,28 +775,23 @@ th{
    const msg=document.createElement("p");
    msg.textContent="Apunta la cámara al código de barras";
    msg.style.color="white";
-
    video.style.cssText="width:min(92vw,500px);border-radius:12px";
 
    overlay.append(video,msg,close);
    document.body.append(overlay);
 
    let stopped=false;
-
    const stop=()=>{
     stopped=true;
     stream.getTracks().forEach(t=>t.stop());
     overlay.remove();
    };
-
    close.onclick=stop;
 
    const detect=async()=>{
     if(stopped)return;
-
     try{
      const codes=await detector.detect(video);
-
      if(codes.length){
       $("pBarcode").value=codes[0].rawValue;
       stop();
@@ -887,12 +799,9 @@ th{
       return;
      }
     }catch(e){}
-
     if(!stopped)requestAnimationFrame(detect);
    };
-
    detect();
-
   }catch(e){
    toast("No se pudo abrir la cámara. Revisa el permiso de cámara.");
   }
@@ -923,53 +832,71 @@ th{
   }));
 
   const wb=XLSX.utils.book_new();
-
-  XLSX.utils.book_append_sheet(
-   wb,
-   XLSX.utils.json_to_sheet(products),
-   "Inventario"
-  );
-
-  XLSX.utils.book_append_sheet(
-   wb,
-   XLSX.utils.json_to_sheet(movements),
-   "Mermas e historial"
-  );
-
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(products),"Inventario");
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(movements),"Mermas e historial");
   XLSX.writeFile(wb,"MermaControl_3A.xlsx");
  });
 
+ // Diagnóstico de conexión y carga inicial
  async function start(){
-  if(!window.supabase?.createClient){
-   throw new Error("No se pudo cargar Supabase. Revisa tu conexión.");
+  if(!window.supabase||typeof window.supabase.createClient!=="function"){
+   throw new Error("No se pudo cargar la librería de Supabase. Comprueba tu conexión a Internet.");
   }
 
-  state.client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  if(!SUPABASE_URL.startsWith("https://")||!SUPABASE_URL.includes(".supabase.co")){
+   throw new Error("La URL de Supabase no tiene el formato correcto.");
+  }
+
+  if(!SUPABASE_KEY){
+   throw new Error("Falta la clave pública de Supabase.");
+  }
+
+  state.client=window.supabase.createClient(
+   SUPABASE_URL,
+   SUPABASE_KEY,
+   {
+    auth:{
+     persistSession:false,
+     autoRefreshToken:false,
+     detectSessionInUrl:false
+    }
+   }
+  );
 
   await loadAll();
 
-  setInterval(()=>loadAll().catch(console.error),30000);
+  setInterval(()=>{
+   if(document.visibilityState==="visible"){
+    loadAll().catch(err=>console.error("Error al actualizar:",err));
+   }
+  },30000);
 
   document.addEventListener("visibilitychange",()=>{
-   if(!document.hidden)loadAll().catch(console.error);
+   if(!document.hidden){
+    loadAll().catch(err=>console.error("Error al volver a abrir:",err));
+   }
   });
  }
 
- start().catch(err=>{
-  $("connection").textContent="● Sin conexión";
+ function showConnectionError(err){
+  const message=err?.message||"Error desconocido";
+  $("connection").textContent="● Error de conexión";
   $("connection").style.color="#ffd8d8";
 
   $("alerts").innerHTML=
-   '<div class="notice">No se pudo conectar con Supabase: '+
-   esc(err.message)+
-   '<br>Verifica URL, clave y políticas RLS.</div>';
+   '<div class="notice"><b>No se pudo conectar con Supabase.</b><br>'+
+   esc(message)+
+   '<br><br>Si el error menciona permisos, revisa las políticas RLS. Si menciona API key, comprueba la clave pública del proyecto.</div>';
 
-  toast("Error de conexión con Supabase.");
-  console.error(err);
- });
+  toast("Error: "+message);
+  console.error("MermaControl - detalle de conexión:",err);
+ }
+
+ start().catch(showConnectionError);
+
 })();
 
-// Registro del service worker para que Android reconozca la PWA.
+// Registro del service worker para la PWA.
 if("serviceWorker" in navigator){
  window.addEventListener("load",()=>{
   navigator.serviceWorker.register("./sw.js")
