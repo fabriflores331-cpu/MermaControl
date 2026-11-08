@@ -35,6 +35,7 @@ button{border:0;border-radius:9px;padding:12px 15px;font-weight:bold;cursor:poin
 .primary{background:var(--orange);color:#241708}
 .secondary{background:var(--navy);color:white}
 .light{background:#edf2f7;color:var(--navy)}
+.danger{background:#fde8e8;color:#a51f1f}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .searchrow{display:flex;gap:8px;margin-bottom:10px}
 .searchrow input{flex:1}
@@ -267,10 +268,21 @@ th{background:#f6f8fb;color:var(--navy)}
     <td><b>${esc(p.name)}</b><div class="muted">${esc(p.barcode||"")}</div></td>
     <td>${esc(stockText(p))}</td><td>${dateText(p.expiry_date)}</td>
     <td>${esc(p.location||"—")}</td><td><span class="pill ${s.cls}">${esc(s.label)}</span></td>
-    <td><button class="light" data-edit="${p.id}">Editar</button></td>
+    <td>
+     <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="light" data-edit="${p.id}">Editar</button>
+      <button class="danger" data-delete="${p.id}">Eliminar</button>
+     </div>
+    </td>
    </tr>`;
   }).join(""):'<tr><td colspan="6" class="empty">No se encontraron productos.</td></tr>';
-  document.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>editProduct(b.dataset.edit)));
+
+  document.querySelectorAll("[data-edit]").forEach(b=>
+   b.addEventListener("click",()=>editProduct(b.dataset.edit))
+  );
+  document.querySelectorAll("[data-delete]").forEach(b=>
+   b.addEventListener("click",()=>deleteProduct(b.dataset.delete))
+  );
  }
  function renderProductSelect(){
   const current=$("mProduct").value;
@@ -300,6 +312,34 @@ th{background:#f6f8fb;color:var(--navy)}
   }).eq("id",id);
   if(error)return toast("No se pudo editar: "+error.message);
   toast("Producto actualizado.");await loadAll();
+ }
+
+ // Elimina el producto del inventario y conserva sus movimientos históricos.
+ async function deleteProduct(id){
+  const p=state.products.find(x=>x.id===id);
+  if(!p)return;
+
+  const confirmation=confirm(
+   "¿Estás seguro de eliminar "+p.name+"?\n\n"+
+   "El producto desaparecerá del inventario, pero sus movimientos anteriores se conservarán en el historial."
+  );
+  if(!confirmation)return;
+
+  const {error}=await state.client
+   .from("merma_products")
+   .delete()
+   .eq("id",id);
+
+  if(error){
+   return toast("No se pudo eliminar: "+error.message);
+  }
+
+  toast("Producto eliminado del inventario.");
+  try{
+   await loadAll();
+  }catch(e){
+   toast("Producto eliminado. Actualiza para refrescar el inventario.");
+  }
  }
 
  $("productSearch").addEventListener("input",renderProducts);
@@ -391,7 +431,6 @@ th{background:#f6f8fb;color:var(--navy)}
   if(!window.supabase?.createClient)throw new Error("No se pudo cargar Supabase. Revisa tu conexión.");
   state.client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
   await loadAll();
-  // Actualiza los datos periódicamente y al volver a abrir la pestaña.
   setInterval(()=>loadAll().catch(console.error),30000);
   document.addEventListener("visibilitychange",()=>{
    if(!document.hidden)loadAll().catch(console.error);
