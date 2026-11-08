@@ -1,10 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#10243e">
+<meta name="description" content="Control compartido de productos, vencimientos y mermas de Tiendas 3A.">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/svg+xml" href="./icon.svg">
+<link rel="apple-touch-icon" href="./icon.svg">
 <title>MermaControl 3A</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -314,32 +317,19 @@ th{background:#f6f8fb;color:var(--navy)}
   toast("Producto actualizado.");await loadAll();
  }
 
- // Elimina el producto del inventario y conserva sus movimientos históricos.
  async function deleteProduct(id){
   const p=state.products.find(x=>x.id===id);
   if(!p)return;
-
   const confirmation=confirm(
    "¿Estás seguro de eliminar "+p.name+"?\n\n"+
    "El producto desaparecerá del inventario, pero sus movimientos anteriores se conservarán en el historial."
   );
   if(!confirmation)return;
-
-  const {error}=await state.client
-   .from("merma_products")
-   .delete()
-   .eq("id",id);
-
-  if(error){
-   return toast("No se pudo eliminar: "+error.message);
-  }
-
+  const {error}=await state.client.from("merma_products").delete().eq("id",id);
+  if(error)return toast("No se pudo eliminar: "+error.message);
   toast("Producto eliminado del inventario.");
-  try{
-   await loadAll();
-  }catch(e){
-   toast("Producto eliminado. Actualiza para refrescar el inventario.");
-  }
+  try{await loadAll();}
+  catch(e){toast("Producto eliminado. Actualiza para refrescar el inventario.");}
  }
 
  $("productSearch").addEventListener("input",renderProducts);
@@ -444,6 +434,15 @@ th{background:#f6f8fb;color:var(--navy)}
   console.error(err);
  });
 })();
+
+// Registro del service worker para que Android reconozca la PWA.
+if ("serviceWorker" in navigator) {
+ window.addEventListener("load", () => {
+  navigator.serviceWorker.register("./sw.js")
+   .then(() => console.log("MermaControl 3A: aplicación preparada"))
+   .catch(error => console.error("Error al registrar la aplicación:", error));
+ });
+}
 </script>
 </body>
 </html>
