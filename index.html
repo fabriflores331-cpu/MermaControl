@@ -1,0 +1,410 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#10243e">
+<title>MermaControl 3A</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root{--navy:#10243e;--blue:#1d4e89;--orange:#f28c28;--bg:#f3f6fa;--line:#e3e9f0;--muted:#6b7788;--red:#c73535;--green:#198754}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#172334;font-family:Arial,sans-serif}
+header{background:linear-gradient(120deg,var(--navy),var(--blue));color:white;padding:20px 15px}
+.head{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+h1{font-size:22px;margin:0 0 5px}
+.sub{font-size:13px;opacity:.85}
+.status{font-size:12px;background:#ffffff20;border:1px solid #ffffff40;border-radius:20px;padding:7px}
+main{max-width:1100px;margin:16px auto;padding:0 12px 40px}
+.tabs{display:flex;gap:7px;overflow:auto;padding:3px 0 12px}
+.tab{border:1px solid var(--line);background:white;color:var(--navy);padding:11px 14px;border-radius:10px;font-weight:bold;white-space:nowrap}
+.tab.active{background:var(--orange);border-color:var(--orange);color:#241708}
+.panel{display:none}.panel.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.card,.box{background:white;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 2px 8px #14243a08}
+.metric{font-size:26px;font-weight:800;color:var(--navy);margin-top:7px}
+.metric-label,.muted{font-size:12px;color:var(--muted)}
+.section-title{font-size:18px;color:var(--navy);margin:6px 0 12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-size:13px;font-weight:bold;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #ccd6e2;border-radius:9px;font:inherit;background:white;min-height:43px}
+textarea{min-height:76px}
+button{border:0;border-radius:9px;padding:12px 15px;font-weight:bold;cursor:pointer}
+.primary{background:var(--orange);color:#241708}
+.secondary{background:var(--navy);color:white}
+.light{background:#edf2f7;color:var(--navy)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.searchrow{display:flex;gap:8px;margin-bottom:10px}
+.searchrow input{flex:1}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:650px}
+th,td{text-align:left;padding:11px 9px;border-bottom:1px solid var(--line)}
+th{background:#f6f8fb;color:var(--navy)}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:white}
+.pill{display:inline-block;padding:5px 8px;border-radius:20px;font-size:11px;font-weight:bold;background:#edf2f7}
+.pill.red{background:#fde8e8;color:#a51f1f}
+.pill.orange{background:#fff0dc;color:#8c4d00}
+.pill.green{background:#e4f5eb;color:#146c43}
+.notice{padding:12px;border-radius:10px;margin:10px 0;font-size:13px;background:#fff4df;color:#744400}
+.empty{padding:22px;text-align:center;color:var(--muted)}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#172334;color:white;padding:12px 16px;border-radius:10px;display:none;z-index:20;max-width:90%;font-size:13px}
+@media(max-width:700px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.grid2{grid-template-columns:1fr}.head{align-items:flex-start}.card{padding:12px}.metric{font-size:23px}}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="head">
+  <div>
+   <h1>🟠 MermaControl 3A</h1>
+   <div class="sub">Control compartido de productos, vencimientos y mermas</div>
+  </div>
+  <div class="status" id="connection">Conectando…</div>
+ </div>
+</header>
+
+<main>
+ <div class="tabs">
+  <button class="tab active" data-tab="resumen">Resumen</button>
+  <button class="tab" data-tab="productos">Productos</button>
+  <button class="tab" data-tab="registrar">Registrar</button>
+  <button class="tab" data-tab="historial">Historial</button>
+ </div>
+
+ <section id="resumen" class="panel active">
+  <div class="cards">
+   <div class="card"><div class="metric-label">Productos registrados</div><div class="metric" id="mProducts">—</div></div>
+   <div class="card"><div class="metric-label">Por vencer (6 días)</div><div class="metric" id="mSoon">—</div></div>
+   <div class="card"><div class="metric-label">Vencidos</div><div class="metric" id="mExpired">—</div></div>
+   <div class="card"><div class="metric-label">Mermas registradas</div><div class="metric" id="mWaste">—</div></div>
+  </div>
+  <div class="box">
+   <h2 class="section-title">Alertas de vencimiento</h2>
+   <div class="muted">Revisa los productos que vencen dentro de los próximos 6 días.</div>
+   <div id="alerts"><div class="empty">Cargando alertas…</div></div>
+  </div>
+ </section>
+
+ <section id="productos" class="panel">
+  <div class="box">
+   <h2 class="section-title">Inventario compartido</h2>
+   <div class="searchrow">
+    <input id="productSearch" placeholder="Buscar producto, código o ubicación…">
+    <button class="light" id="refreshBtn">Actualizar</button>
+   </div>
+   <div class="tablewrap">
+    <table>
+     <thead><tr><th>Producto</th><th>Stock</th><th>Vencimiento</th><th>Ubicación</th><th>Estado</th><th>Acción</th></tr></thead>
+     <tbody id="productsBody"><tr><td colspan="6" class="empty">Cargando…</td></tr></tbody>
+    </table>
+   </div>
+   <p class="muted">Los cambios se comparten entre los teléfonos que abran este mismo enlace.</p>
+  </div>
+ </section>
+
+ <section id="registrar" class="panel">
+  <div class="grid2">
+   <div class="box">
+    <h2 class="section-title">Registrar producto</h2>
+    <form id="productForm">
+     <label>Nombre del producto *</label>
+     <input id="pName" required maxlength="120" placeholder="Ej. Leche evaporada">
+     <label>Código de barras</label>
+     <div class="searchrow">
+      <input id="pBarcode" placeholder="Escanea o escribe el código">
+      <button type="button" class="light" id="scanBtn">Escanear</button>
+     </div>
+     <label>Cantidad inicial *</label>
+     <input id="pQty" type="number" min="0" step="0.01" required value="0">
+     <label>Unidad</label>
+     <select id="pUnit">
+      <option>unidad</option><option>paquete</option><option>caja</option>
+      <option>bolsa</option><option>botella</option><option>kg</option>
+      <option>g</option><option>litro</option><option>ml</option>
+     </select>
+     <label>Fecha de vencimiento</label>
+     <input id="pExpiry" type="date">
+     <label>Ubicación / zona</label>
+     <input id="pLocation" placeholder="Ej. Góndola, almacén, refrigeradora">
+     <label>Nombre del trabajador *</label>
+     <input id="pWorker" required maxlength="80" placeholder="¿Quién registra?">
+     <div class="actions">
+      <button class="primary" type="submit">Guardar producto</button>
+      <button class="light" type="reset">Limpiar</button>
+     </div>
+    </form>
+   </div>
+
+   <div class="box">
+    <h2 class="section-title">Registrar movimiento</h2>
+    <form id="movementForm">
+     <label>Producto *</label>
+     <select id="mProduct" required><option value="">Selecciona un producto</option></select>
+     <label>Tipo de movimiento *</label>
+     <select id="mType">
+      <option value="merma">Merma / retiro</option>
+      <option value="ingreso">Ingreso de stock</option>
+      <option value="ajuste">Ajuste de stock (resta)</option>
+     </select>
+     <label>Cantidad *</label>
+     <input id="mQty" type="number" min="0.01" step="0.01" required placeholder="Ej. 2">
+     <label>Nombre del trabajador *</label>
+     <input id="mWorker" required maxlength="80" placeholder="¿Quién realiza el movimiento?">
+     <label>Motivo / observación</label>
+     <textarea id="mNotes" maxlength="500" placeholder="Ej. Producto vencido, envase dañado…"></textarea>
+     <div class="actions"><button class="secondary" type="submit">Guardar movimiento</button></div>
+    </form>
+    <p class="muted">Merma y ajuste descuentan stock. Ingreso aumenta stock.</p>
+   </div>
+  </div>
+ </section>
+
+ <section id="historial" class="panel">
+  <div class="box">
+   <div class="searchrow" style="justify-content:space-between;flex-wrap:wrap">
+    <div><h2 class="section-title" style="margin:4px 0">Historial de movimientos</h2><div class="muted">Registro de ingresos, mermas y ajustes</div></div>
+    <button class="primary" id="exportBtn">Exportar a Excel</button>
+   </div>
+   <div class="tablewrap">
+    <table>
+     <thead><tr><th>Fecha y hora</th><th>Producto</th><th>Movimiento</th><th>Cantidad</th><th>Trabajador</th><th>Observación</th></tr></thead>
+     <tbody id="historyBody"><tr><td colspan="6" class="empty">Cargando…</td></tr></tbody>
+    </table>
+   </div>
+  </div>
+ </section>
+</main>
+
+<div id="toast"></div>
+
+<script>
+(() => {
+ const SUPABASE_URL = "https://rgadrcvqvqnktwrnimpk.supabase.co";
+ const SUPABASE_KEY = "sb_publishable_eUosdY-2YDNGPw6AIxjhhQ_g_dSV8eI";
+
+ const $ = id => document.getElementById(id);
+ const state = {products:[], movements:[], client:null};
+
+ function toast(message){
+  const el=$("toast"); el.textContent=message; el.style.display="block";
+  clearTimeout(toast.timer);
+  toast.timer=setTimeout(()=>el.style.display="none",3500);
+ }
+ function esc(value){
+  return String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+ }
+ function dateText(value){
+  return value ? new Date(value+"T00:00:00").toLocaleDateString("es-PE") : "—";
+ }
+ function dateTimeText(value){
+  return value ? new Date(value).toLocaleString("es-PE") : "—";
+ }
+ function daysUntil(value){
+  if(!value)return null;
+  const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const date=new Date(value+"T00:00:00");
+  return Math.round((date-today)/86400000);
+ }
+ function stockText(p){
+  return Number(p.quantity).toLocaleString("es-PE")+" "+(p.unit||"unidad");
+ }
+ function expiryStatus(p){
+  const n=daysUntil(p.expiry_date);
+  if(n===null)return {label:"Sin fecha",cls:""};
+  if(n<0)return {label:"Vencido hace "+Math.abs(n)+" día(s)",cls:"red"};
+  if(n===0)return {label:"Vence hoy",cls:"red"};
+  if(n===1)return {label:"Vence en 1 día",cls:"red"};
+  if(n<=3)return {label:"Vence en "+n+" días",cls:"orange"};
+  if(n<=6)return {label:"Vence en "+n+" días",cls:"orange"};
+  return {label:"Vigente",cls:"green"};
+ }
+ function switchTab(tab){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===tab));
+ }
+ document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
+
+ async function loadAll(){
+  const [products,movements]=await Promise.all([
+   state.client.from("merma_products").select("*").order("name"),
+   state.client.from("merma_movements").select("*").order("created_at",{ascending:false}).limit(1000)
+  ]);
+  if(products.error)throw products.error;
+  if(movements.error)throw movements.error;
+  state.products=products.data||[];
+  state.movements=movements.data||[];
+  renderAll();
+  $("connection").textContent="● Conectado";
+  $("connection").style.color="#d7ffe5";
+ }
+ function renderAll(){
+  const expired=state.products.filter(p=>p.expiry_date&&daysUntil(p.expiry_date)<0);
+  const soon=state.products.filter(p=>p.expiry_date&&daysUntil(p.expiry_date)>=0&&daysUntil(p.expiry_date)<=6);
+  $("mProducts").textContent=state.products.length;
+  $("mSoon").textContent=soon.length;
+  $("mExpired").textContent=expired.length;
+  $("mWaste").textContent=state.movements.filter(m=>m.movement_type==="merma").length;
+  renderAlerts();renderProducts();renderProductSelect();renderHistory();
+ }
+ function renderAlerts(){
+  const list=state.products.filter(p=>p.expiry_date&&daysUntil(p.expiry_date)<=6)
+   .sort((a,b)=>daysUntil(a.expiry_date)-daysUntil(b.expiry_date));
+  $("alerts").innerHTML=list.length?list.map(p=>{
+   const s=expiryStatus(p);
+   return `<div style="padding:11px 2px;border-bottom:1px solid var(--line)">
+    <b>${esc(p.name)}</b> <span class="pill ${s.cls}">${esc(s.label)}</span>
+    <div class="muted">Stock: ${esc(stockText(p))} · Ubicación: ${esc(p.location||"No indicada")}</div>
+   </div>`;
+  }).join(""):'<div class="empty">No hay productos vencidos ni próximos a vencer en los siguientes 6 días.</div>';
+ }
+ function renderProducts(){
+  const term=$("productSearch").value.trim().toLowerCase();
+  const rows=state.products.filter(p=>[p.name,p.barcode,p.location].join(" ").toLowerCase().includes(term));
+  $("productsBody").innerHTML=rows.length?rows.map(p=>{
+   const s=expiryStatus(p);
+   return `<tr>
+    <td><b>${esc(p.name)}</b><div class="muted">${esc(p.barcode||"")}</div></td>
+    <td>${esc(stockText(p))}</td><td>${dateText(p.expiry_date)}</td>
+    <td>${esc(p.location||"—")}</td><td><span class="pill ${s.cls}">${esc(s.label)}</span></td>
+    <td><button class="light" data-edit="${p.id}">Editar</button></td>
+   </tr>`;
+  }).join(""):'<tr><td colspan="6" class="empty">No se encontraron productos.</td></tr>';
+  document.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>editProduct(b.dataset.edit)));
+ }
+ function renderProductSelect(){
+  const current=$("mProduct").value;
+  $("mProduct").innerHTML='<option value="">Selecciona un producto</option>'+state.products.map(p=>
+   `<option value="${p.id}">${esc(p.name)} · Stock: ${esc(stockText(p))}</option>`).join("");
+  if(state.products.some(p=>p.id===current))$("mProduct").value=current;
+ }
+ function renderHistory(){
+  $("historyBody").innerHTML=state.movements.length?state.movements.map(m=>{
+   const label=m.movement_type==="merma"?"Merma":m.movement_type==="ingreso"?"Ingreso":"Ajuste";
+   return `<tr><td>${dateTimeText(m.created_at)}</td><td>${esc(m.product_name)}</td>
+    <td>${label}</td><td>${Number(m.quantity).toLocaleString("es-PE")}</td>
+    <td>${esc(m.worker_name)}</td><td>${esc(m.notes||"—")}</td></tr>`;
+  }).join(""):'<tr><td colspan="6" class="empty">Todavía no hay movimientos.</td></tr>';
+ }
+ async function editProduct(id){
+  const p=state.products.find(x=>x.id===id);if(!p)return;
+  const name=prompt("Nombre del producto:",p.name);if(name===null)return;
+  const qty=prompt("Stock actual:",p.quantity);if(qty===null)return;
+  const location=prompt("Ubicación:",p.location||"");if(location===null)return;
+  const expiry=prompt("Vencimiento (AAAA-MM-DD), vacío si no tiene:",p.expiry_date||"");if(expiry===null)return;
+  const n=Number(qty);
+  if(!name.trim()||!Number.isFinite(n)||n<0)return toast("Revisa el nombre y el stock.");
+  const {error}=await state.client.from("merma_products").update({
+   name:name.trim(),quantity:n,location:location.trim()||null,
+   expiry_date:expiry.trim()||null,updated_at:new Date().toISOString()
+  }).eq("id",id);
+  if(error)return toast("No se pudo editar: "+error.message);
+  toast("Producto actualizado.");await loadAll();
+ }
+
+ $("productSearch").addEventListener("input",renderProducts);
+ $("refreshBtn").addEventListener("click",async()=>{
+  try{await loadAll();toast("Inventario actualizado.");}
+  catch(e){toast(e.message);}
+ });
+
+ $("productForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const name=$("pName").value.trim(),worker=$("pWorker").value.trim(),qty=Number($("pQty").value);
+  if(!name||!worker||!Number.isFinite(qty)||qty<0)return toast("Completa los campos obligatorios.");
+  const row={
+   name,barcode:$("pBarcode").value.trim()||null,quantity:qty,unit:$("pUnit").value,
+   expiry_date:$("pExpiry").value||null,location:$("pLocation").value.trim()||null,created_by:worker
+  };
+  const {error}=await state.client.from("merma_products").insert(row);
+  if(error)return toast("No se pudo guardar: "+error.message);
+  $("productForm").reset();$("pQty").value="0";
+  toast("Producto registrado correctamente.");await loadAll();switchTab("productos");
+ });
+
+ $("movementForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const id=$("mProduct").value,p=state.products.find(x=>x.id===id);
+  const qty=Number($("mQty").value),worker=$("mWorker").value.trim(),type=$("mType").value;
+  if(!p||!worker||!Number.isFinite(qty)||qty<=0)return toast("Completa los campos correctamente.");
+  const oldQty=Number(p.quantity),newQty=type==="ingreso"?oldQty+qty:oldQty-qty;
+  if(newQty<0)return toast("No hay stock suficiente para ese movimiento.");
+  const {error:updateError}=await state.client.from("merma_products")
+   .update({quantity:newQty,updated_at:new Date().toISOString()}).eq("id",id);
+  if(updateError)return toast("No se pudo actualizar el stock: "+updateError.message);
+  const {error:insertError}=await state.client.from("merma_movements").insert({
+   product_id:id,product_name:p.name,movement_type:type,quantity:qty,
+   worker_name:worker,notes:$("mNotes").value.trim()||null
+  });
+  if(insertError){
+   await state.client.from("merma_products").update({quantity:oldQty,updated_at:new Date().toISOString()}).eq("id",id);
+   return toast("No se guardó el movimiento: "+insertError.message);
+  }
+  $("movementForm").reset();toast("Movimiento guardado.");await loadAll();switchTab("historial");
+ });
+
+ $("scanBtn").addEventListener("click",async()=>{
+  if(!("BarcodeDetector" in window))return toast("No se admite el escáner en este navegador. Escribe el código manualmente.");
+  try{
+   const detector=new BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e","code_128","qr_code"]});
+   const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
+   const video=document.createElement("video");video.srcObject=stream;video.setAttribute("playsinline","");
+   await video.play();
+   const overlay=document.createElement("div");
+   overlay.style.cssText="position:fixed;inset:0;background:#000e;z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px";
+   const close=document.createElement("button");close.textContent="Cerrar escáner";close.className="primary";
+   const msg=document.createElement("p");msg.textContent="Apunta la cámara al código de barras";msg.style.color="white";
+   video.style.cssText="width:min(92vw,500px);border-radius:12px";
+   overlay.append(video,msg,close);document.body.append(overlay);
+   let stopped=false;
+   const stop=()=>{stopped=true;stream.getTracks().forEach(t=>t.stop());overlay.remove();};
+   close.onclick=stop;
+   const detect=async()=>{
+    if(stopped)return;
+    try{
+     const codes=await detector.detect(video);
+     if(codes.length){$("pBarcode").value=codes[0].rawValue;stop();toast("Código leído.");return;}
+    }catch(e){}
+    requestAnimationFrame(detect);
+   };
+   detect();
+  }catch(e){toast("No se pudo abrir la cámara. Revisa el permiso de cámara.");}
+ });
+
+ $("exportBtn").addEventListener("click",()=>{
+  if(!window.XLSX)return toast("No se pudo cargar Excel. Revisa tu conexión.");
+  const products=state.products.map(p=>({
+   Producto:p.name,Codigo:p.barcode||"",Stock:p.quantity,Unidad:p.unit,
+   Vencimiento:p.expiry_date||"",Ubicacion:p.location||"",Registrado_por:p.created_by||""
+  }));
+  const movements=state.movements.map(m=>({
+   Fecha:dateTimeText(m.created_at),Producto:m.product_name,Tipo:m.movement_type,
+   Cantidad:m.quantity,Trabajador:m.worker_name,Observacion:m.notes||""
+  }));
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(products),"Inventario");
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(movements),"Mermas e historial");
+  XLSX.writeFile(wb,"MermaControl_3A.xlsx");
+ });
+
+ async function start(){
+  if(!window.supabase?.createClient)throw new Error("No se pudo cargar Supabase. Revisa tu conexión.");
+  state.client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  await loadAll();
+  // Actualiza los datos periódicamente y al volver a abrir la pestaña.
+  setInterval(()=>loadAll().catch(console.error),30000);
+  document.addEventListener("visibilitychange",()=>{
+   if(!document.hidden)loadAll().catch(console.error);
+  });
+ }
+ start().catch(err=>{
+  $("connection").textContent="● Sin conexión";
+  $("connection").style.color="#ffd8d8";
+  $("alerts").innerHTML='<div class="notice">No se pudo conectar con Supabase: '+esc(err.message)+'<br>Verifica URL, clave y políticas RLS.</div>';
+  toast("Error de conexión con Supabase.");
+  console.error(err);
+ });
+})();
+</script>
+</body>
+</html>
