@@ -1,0 +1,18 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="110" fill="#123B70"/>
+  <path d="M0 350 L512 230 L512 512 L0 512Z" fill="#F58220"/>
+  <circle cx="256" cy="220" r="145" fill="#FFFFFF"/>
+  <text x="256" y="270"
+        font-family="Arial, sans-serif"
+        font-size="150"
+        font-weight="900"
+        text-anchor="middle"
+        fill="#123B70">3A</text>
+  <text x="256" y="425"
+        font-family="Arial, sans-serif"
+        font-size="42"
+        font-weight="bold"
+        text-anchor="middle"
+        fill="#FFFFFF">MERMA</text>
+</svg>
